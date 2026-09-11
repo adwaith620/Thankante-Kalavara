@@ -104,7 +104,17 @@ export const SuccessExe = () => {
 
   const closePopup = (id: number) => {
     if (hasWon || isLost) return;
-    setPopups(prev => prev.filter(p => p.id !== id));
+    setPopups(prev => {
+      const next = prev.filter(p => p.id !== id);
+      
+      // Win condition: if all popups are cleared after 10 seconds (timeLeft <= 35)
+      if (next.length === 0 && timeLeft <= 35) {
+        setHasWon(true);
+        completeGame('success-exe');
+      }
+      
+      return next;
+    });
   };
 
   const handleReset = () => {
@@ -119,7 +129,7 @@ export const SuccessExe = () => {
   const getStatusMessage = () => {
     if (isLost) return "SYSTEM OVERLOAD. Play area filled.";
     if (hasWon) return "You survived the system panic.";
-    return `Close the errors before they fill the screen. Time remaining: ${timeLeft}s`;
+    return `Close errors to survive 45s, or clear them ALL after 10s. Time: ${timeLeft}s`;
   };
 
   return (
