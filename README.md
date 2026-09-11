@@ -146,8 +146,6 @@ The application uses a central game registry to manage active games, sequential 
 
 *Demonstrates the Thankan's Kalavara experience from the first challenge to the final certificate.*
 
-# Additional Demos
-[Add any extra demo materials or links here]
 
 ## Team Contributions
 ### Adwaith Krishna MH
