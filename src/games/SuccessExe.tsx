@@ -31,11 +31,12 @@ export const SuccessExe = () => {
   const [hasWon, setHasWon] = useState(false);
   const [isLost, setIsLost] = useState(false);
   const [timeLeft, setTimeLeft] = useState(45);
+  const timeElapsedRef = useRef(0);
   const popupIdCounter = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
   
   // Track spawn rate
-  const spawnRateRef = useRef(1000);
+  const spawnRateRef = useRef(800);
   const maxWindows = 50; // Cap to prevent browser crash, and define "filled"
 
   useEffect(() => {
@@ -45,6 +46,7 @@ export const SuccessExe = () => {
   useEffect(() => {
     if (hasWon || isLost) return;
     const t = setInterval(() => {
+      timeElapsedRef.current += 1;
       setTimeLeft(prev => {
         if (prev <= 1) {
           // If they survive for 45 seconds, they win
@@ -92,8 +94,11 @@ export const SuccessExe = () => {
         return next;
       });
 
-      // Increase spawn rate
-      spawnRateRef.current = Math.max(50, spawnRateRef.current * 0.9);
+      // Increase spawn rate only after 6 seconds
+      if (timeElapsedRef.current >= 6) {
+        spawnRateRef.current = Math.max(50, spawnRateRef.current * 0.85);
+      }
+      
       timeoutId = setTimeout(spawnWindow, spawnRateRef.current);
     };
 
@@ -107,8 +112,8 @@ export const SuccessExe = () => {
     setPopups(prev => {
       const next = prev.filter(p => p.id !== id);
       
-      // Win condition: if all popups are cleared after 10 seconds (timeLeft <= 35)
-      if (next.length === 0 && timeLeft <= 35) {
+      // Win condition: if all popups are cleared after 5 seconds
+      if (next.length === 0 && timeElapsedRef.current >= 5) {
         setHasWon(true);
         completeGame('success-exe');
       }
@@ -122,14 +127,15 @@ export const SuccessExe = () => {
     setIsLost(false);
     setPopups([]);
     setTimeLeft(45);
+    timeElapsedRef.current = 0;
     popupIdCounter.current = 0;
-    spawnRateRef.current = 1000;
+    spawnRateRef.current = 800;
   };
 
   const getStatusMessage = () => {
     if (isLost) return "SYSTEM OVERLOAD. Play area filled.";
     if (hasWon) return "You survived the system panic.";
-    return `Close errors to survive 45s, or clear them ALL after 10s. Time: ${timeLeft}s`;
+    return `Close errors to survive 45s, or clear them ALL after 5s. Time: ${timeLeft}s`;
   };
 
   return (
