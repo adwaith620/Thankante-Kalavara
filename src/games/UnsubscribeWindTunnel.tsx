@@ -17,7 +17,7 @@ export const UnsubscribeWindTunnel = () => {
     currentY: 200,
     vx: 0,
     vy: 0,
-    windStrength: 0.02,
+    windStrength: 0.05,
     dead: false
   });
 
@@ -29,14 +29,14 @@ export const UnsubscribeWindTunnel = () => {
     recordAttempt();
   }, []);
 
-  // 1.5 second timer for massive wind
+  // 1.0 second timer for massive wind
   useEffect(() => {
     if (hasWon || isLost) return;
     
     timerRef.current = setTimeout(() => {
       // Massive wind blows it away
       stateRef.current.windStrength = 20;
-    }, 1500);
+    }, 1000);
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -126,7 +126,7 @@ export const UnsubscribeWindTunnel = () => {
       currentY: 200,
       vx: 0,
       vy: 0,
-      windStrength: 0.02,
+      windStrength: 0.05,
       dead: false
     };
     setBtnPos({ x: 300, y: 200 });
