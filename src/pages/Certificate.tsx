@@ -49,7 +49,9 @@ export const Certificate = () => {
       link.href = image;
       const safeName = (name || 'Anonymous-Sufferer').replace(/\s+/g, '-').toUpperCase();
       link.download = `CERTIFIED-THANKAN-${safeName}.png`;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
     } catch (e) {
       console.error(e);
     }
