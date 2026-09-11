@@ -34,16 +34,20 @@ export const LeaderboardPage = () => {
             <div className="flex text-zinc-500 text-xs border-b border-zinc-800 pb-2 mb-4 px-4">
               <div className="w-16">RANK</div>
               <div className="flex-1">PLAYER</div>
+              <div className="w-24 text-center">TROPHIES</div>
               <div className="w-24 text-right">TIME</div>
             </div>
             {leaderboard.map((entry, idx) => (
               <div 
                 key={entry.id} 
-                className={`flex text-sm px-4 py-3 rounded ${idx === 0 ? 'bg-yellow-500/10 border border-yellow-500/30 text-yellow-400' : 'bg-zinc-900/50 text-zinc-300'}`}
+                className={`flex text-sm px-4 py-3 rounded items-center ${idx === 0 ? 'bg-yellow-500/10 border border-yellow-500/30 text-yellow-400' : 'bg-zinc-900/50 text-zinc-300'}`}
               >
                 <div className="w-16 font-bold">#{idx + 1}</div>
-                <div className="flex-1 truncate">{entry.name}</div>
-                <div className="w-24 text-right">{formatTime(entry.timeMs)}</div>
+                <div className="flex-1 truncate font-bold">{entry.name}</div>
+                <div className="w-24 text-center text-yellow-500 flex items-center justify-center gap-1">
+                  {entry.trophies} <Trophy size={14} className={idx === 0 ? "fill-yellow-500 text-yellow-500" : ""} />
+                </div>
+                <div className="w-24 text-right font-mono">{formatTime(entry.timeMs)}</div>
               </div>
             ))}
           </div>

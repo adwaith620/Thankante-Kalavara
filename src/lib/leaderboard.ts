@@ -3,9 +3,10 @@
 // Ready to be replaced with Supabase or another backend.
 
 export interface LeaderboardEntry {
-  id: string;
+  id: string; // The sessionId
   name: string;
   timeMs: number;
+  trophies: number;
   dateStr: string; // YYYY-MM-DD
   timestamp: number;
 }
@@ -18,9 +19,6 @@ const getTodayDateStr = () => {
 };
 
 export const fetchDailyLeaderboard = async (): Promise<LeaderboardEntry[]> => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
   try {
     const data = localStorage.getItem(STORAGE_KEY);
     if (!data) return [];
@@ -28,47 +26,64 @@ export const fetchDailyLeaderboard = async (): Promise<LeaderboardEntry[]> => {
     const entries: LeaderboardEntry[] = JSON.parse(data);
     const today = getTodayDateStr();
     
-    // Filter for today and sort by fastest time
     return entries
       .filter(e => e.dateStr === today)
-      .sort((a, b) => a.timeMs - b.timeMs);
+      .sort((a, b) => {
+        if (b.trophies !== a.trophies) {
+          return b.trophies - a.trophies; // Descending trophies
+        }
+        return a.timeMs - b.timeMs; // Ascending time
+      });
   } catch (e) {
     console.error("Failed to fetch local leaderboard", e);
     return [];
   }
 };
 
-export const submitToLeaderboard = async (name: string, timeMs: number): Promise<{ rank: number }> => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 600));
-  
+export const syncLeaderboard = async (sessionId: string, name: string, timeMs: number, trophies: number): Promise<{ rank: number }> => {
   try {
     const existingData = localStorage.getItem(STORAGE_KEY);
     const entries: LeaderboardEntry[] = existingData ? JSON.parse(existingData) : [];
     
     const today = getTodayDateStr();
     
-    const newEntry: LeaderboardEntry = {
-      id: Math.random().toString(36).substring(2, 9),
-      name,
-      timeMs,
-      dateStr: today,
-      timestamp: Date.now()
-    };
+    const existingIndex = entries.findIndex(e => e.id === sessionId);
+    if (existingIndex >= 0) {
+      entries[existingIndex] = {
+        ...entries[existingIndex],
+        name,
+        timeMs,
+        trophies,
+        timestamp: Date.now()
+      };
+    } else {
+      const newEntry: LeaderboardEntry = {
+        id: sessionId,
+        name,
+        timeMs,
+        trophies,
+        dateStr: today,
+        timestamp: Date.now()
+      };
+      entries.push(newEntry);
+    }
     
-    entries.push(newEntry);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
     
-    // Calculate rank
     const todayEntries = entries
       .filter(e => e.dateStr === today)
-      .sort((a, b) => a.timeMs - b.timeMs);
+      .sort((a, b) => {
+        if (b.trophies !== a.trophies) {
+          return b.trophies - a.trophies; // Descending trophies
+        }
+        return a.timeMs - b.timeMs; // Ascending time
+      });
       
-    const rank = todayEntries.findIndex(e => e.id === newEntry.id) + 1;
+    const rank = todayEntries.findIndex(e => e.id === sessionId) + 1;
     
     return { rank };
   } catch (e) {
-    console.error("Failed to submit to local leaderboard", e);
-    throw new Error("Submission failed");
+    console.error("Failed to sync leaderboard", e);
+    throw new Error("Sync failed");
   }
 };

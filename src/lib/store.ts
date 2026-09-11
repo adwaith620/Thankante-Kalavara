@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 
 export interface GlobalStats {
+  sessionId: string;
+  playerName: string;
   gamesCompleted: string[];
   totalFailures: number;
   totalAttempts: number;
@@ -13,6 +15,8 @@ const getInitialStats = (): GlobalStats => {
   if (stored) {
     const parsed = JSON.parse(stored);
     return {
+      sessionId: parsed.sessionId || Math.random().toString(36).substring(2, 10),
+      playerName: parsed.playerName || 'Anonymous Sufferer',
       gamesCompleted: parsed.gamesCompleted || [],
       totalFailures: parsed.totalFailures || 0,
       totalAttempts: parsed.totalAttempts || 0,
@@ -20,26 +24,58 @@ const getInitialStats = (): GlobalStats => {
       sessionEndTime: parsed.sessionEndTime || null,
     };
   }
-  return { gamesCompleted: [], totalFailures: 0, totalAttempts: 0, sessionStartTime: null, sessionEndTime: null };
+  return { 
+    sessionId: Math.random().toString(36).substring(2, 10),
+    playerName: 'Anonymous Sufferer',
+    gamesCompleted: [], 
+    totalFailures: 0, 
+    totalAttempts: 0, 
+    sessionStartTime: null, 
+    sessionEndTime: null 
+  };
+};
+
+// Global state outside the hook
+let globalStats = getInitialStats();
+const listeners = new Set<(stats: GlobalStats) => void>();
+
+const updateStats = (updater: (prev: GlobalStats) => GlobalStats) => {
+  globalStats = updater(globalStats);
+  localStorage.setItem('kalavara_stats', JSON.stringify(globalStats));
+  listeners.forEach(l => l(globalStats));
 };
 
 export const useStore = () => {
-  const [stats, setStats] = useState<GlobalStats>(getInitialStats);
+  const [stats, setStats] = useState<GlobalStats>(globalStats);
 
   useEffect(() => {
-    localStorage.setItem('kalavara_stats', JSON.stringify(stats));
-  }, [stats]);
+    listeners.add(setStats);
+    
+    const handleStorage = () => {
+      const fresh = getInitialStats();
+      if (JSON.stringify(fresh) !== JSON.stringify(globalStats)) {
+        globalStats = fresh;
+        listeners.forEach(l => l(globalStats));
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    
+    return () => {
+      listeners.delete(setStats);
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, []);
 
   const recordAttempt = () => {
-    setStats(prev => ({ ...prev, totalAttempts: prev.totalAttempts + 1 }));
+    updateStats(prev => ({ ...prev, totalAttempts: prev.totalAttempts + 1 }));
   };
 
   const recordFailure = () => {
-    setStats(prev => ({ ...prev, totalFailures: prev.totalFailures + 1 }));
+    updateStats(prev => ({ ...prev, totalFailures: prev.totalFailures + 1 }));
   };
 
   const completeGame = (gameId: string) => {
-    setStats(prev => {
+    updateStats(prev => {
       if (!prev.gamesCompleted.includes(gameId)) {
         return { ...prev, gamesCompleted: [...prev.gamesCompleted, gameId] };
       }
@@ -48,7 +84,7 @@ export const useStore = () => {
   };
 
   const startSession = () => {
-    setStats(prev => {
+    updateStats(prev => {
       if (prev.sessionStartTime === null) {
         return { ...prev, sessionStartTime: Date.now(), sessionEndTime: null };
       }
@@ -57,7 +93,7 @@ export const useStore = () => {
   };
 
   const endSession = () => {
-    setStats(prev => {
+    updateStats(prev => {
       if (prev.sessionEndTime === null) {
         return { ...prev, sessionEndTime: Date.now() };
       }
@@ -65,9 +101,21 @@ export const useStore = () => {
     });
   };
 
-  const resetAll = () => {
-    setStats({ gamesCompleted: [], totalFailures: 0, totalAttempts: 0, sessionStartTime: null, sessionEndTime: null });
+  const updatePlayerName = (name: string) => {
+    updateStats(prev => ({ ...prev, playerName: name }));
   };
 
-  return { stats, recordAttempt, recordFailure, completeGame, startSession, endSession, resetAll };
+  const resetAll = () => {
+    updateStats(() => ({ 
+      sessionId: Math.random().toString(36).substring(2, 10),
+      playerName: 'Anonymous Sufferer',
+      gamesCompleted: [], 
+      totalFailures: 0, 
+      totalAttempts: 0, 
+      sessionStartTime: null, 
+      sessionEndTime: null 
+    }));
+  };
+
+  return { stats, recordAttempt, recordFailure, completeGame, startSession, endSession, updatePlayerName, resetAll };
 };

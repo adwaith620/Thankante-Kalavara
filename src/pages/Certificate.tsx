@@ -2,12 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import { useStore } from '../lib/store';
 import { Download, Trophy } from 'lucide-react';
 import { GAMES } from '../lib/constants';
-import { fetchDailyLeaderboard, submitToLeaderboard, type LeaderboardEntry } from '../lib/leaderboard';
+import { fetchDailyLeaderboard, syncLeaderboard, type LeaderboardEntry } from '../lib/leaderboard';
 import html2canvas from 'html2canvas';
 
 export const Certificate = () => {
-  const { stats } = useStore();
-  const [name, setName] = useState('');
+  const { stats, updatePlayerName } = useStore();
+  const [name, setName] = useState(stats.playerName === 'Anonymous Sufferer' ? '' : stats.playerName);
   const [rank, setRank] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -56,7 +56,7 @@ export const Certificate = () => {
       }
 
       // Leaderboard
-      const res = await submitToLeaderboard(name, sessionDuration);
+      const res = await syncLeaderboard(stats.sessionId, name, sessionDuration, stats.gamesCompleted.length);
       setRank(res.rank);
       setSubmitted(true);
       loadLeaderboard();
@@ -66,7 +66,7 @@ export const Certificate = () => {
       setIsSubmitting(false);
     }
   };
-  
+
   if (!isEligible) {
     return (
       <div className="min-h-screen relative z-10 px-4 pt-24 pb-16 flex items-center justify-center">
@@ -88,7 +88,10 @@ export const Certificate = () => {
             <input 
               type="text" 
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                updatePlayerName(e.target.value);
+              }}
               disabled={submitted}
               placeholder="Anonymous Sufferer"
               className="flex-1 max-w-md bg-zinc-900 border border-zinc-700 p-3 rounded text-white focus:outline-none focus:border-green-500 transition-colors disabled:opacity-50"
@@ -193,16 +196,20 @@ export const Certificate = () => {
               <div className="flex text-zinc-500 text-xs border-b border-zinc-800 pb-2 mb-4 px-4">
                 <div className="w-16">RANK</div>
                 <div className="flex-1">PLAYER</div>
+                <div className="w-24 text-center">TROPHIES</div>
                 <div className="w-24 text-right">TIME</div>
               </div>
               {leaderboard.map((entry, idx) => (
                 <div 
                   key={entry.id} 
-                  className={`flex text-sm px-4 py-3 rounded ${idx === 0 ? 'bg-yellow-500/10 border border-yellow-500/30 text-yellow-400' : 'bg-zinc-900/50 text-zinc-300'}`}
+                  className={`flex text-sm px-4 py-3 rounded items-center ${idx === 0 ? 'bg-yellow-500/10 border border-yellow-500/30 text-yellow-400' : 'bg-zinc-900/50 text-zinc-300'}`}
                 >
                   <div className="w-16 font-bold">#{idx + 1}</div>
-                  <div className="flex-1 truncate">{entry.name}</div>
-                  <div className="w-24 text-right">{formatTime(entry.timeMs)}</div>
+                  <div className="flex-1 truncate font-bold">{entry.name}</div>
+                  <div className="w-24 text-center text-yellow-500 flex items-center justify-center gap-1">
+                    {entry.trophies} <Trophy size={14} className={idx === 0 ? "fill-yellow-500 text-yellow-500" : ""} />
+                  </div>
+                  <div className="w-24 text-right font-mono">{formatTime(entry.timeMs)}</div>
                 </div>
               ))}
             </div>
