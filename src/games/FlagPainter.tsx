@@ -18,15 +18,28 @@ export const FlagPainter = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasWon, setHasWon] = useState(false);
   const [isLost, setIsLost] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(45);
-  const [accuracy, setAccuracy] = useState<number | null>(null);
+  const [timeLeft, setTimeLeft] = useState(120);
+  const [accuracy, setAccuracy] = useState<number | null>(0);
   const [currentRoast, setCurrentRoast] = useState<string | null>(null);
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const targetCanvasRef = useRef<HTMLCanvasElement>(null);
+  const targetCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // Track the last roast to prevent consecutive duplicates
   const lastRoastRef = useRef<string | null>(null);
+
+  // Generate target flag on load or country change
+  useEffect(() => {
+    if (!targetCanvasRef.current) {
+      targetCanvasRef.current = document.createElement('canvas');
+      targetCanvasRef.current.width = 600;
+      targetCanvasRef.current.height = 400;
+    }
+    const targetCtx = targetCanvasRef.current.getContext('2d');
+    if (targetCtx) {
+      generateDeterministicFlag(selectedCountry, targetCtx, 600, 400, COLORS);
+    }
+  }, [selectedCountry]);
 
   useEffect(() => {
     recordAttempt();
@@ -40,15 +53,24 @@ export const FlagPainter = () => {
         if (prev <= 1) {
           setIsLost(true);
           recordFailure();
-          // Timeout roast
           setCurrentRoast("You were too slow. The country dissolved before you could finish their flag.");
           return 0;
         }
         return prev - 1;
       });
+
+      // Real-time accuracy calculation
+      if (canvasRef.current && targetCanvasRef.current) {
+        const userCtx = canvasRef.current.getContext('2d');
+        const targetCtx = targetCanvasRef.current.getContext('2d');
+        if (userCtx && targetCtx) {
+          const score = compareCanvases(userCtx, targetCtx, 600, 400);
+          setAccuracy(score);
+        }
+      }
     }, 1000);
     return () => clearInterval(t);
-  }, [hasWon, isLost]);
+  }, [hasWon, isLost, selectedCountry]);
 
   const initCanvas = () => {
     const canvas = canvasRef.current;
@@ -65,8 +87,8 @@ export const FlagPainter = () => {
     initCanvas();
     setHasWon(false);
     setIsLost(false);
-    setTimeLeft(45);
-    setAccuracy(null);
+    setTimeLeft(120);
+    setAccuracy(0);
     setCurrentRoast(null);
     setSelectedCountry(COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)]);
   };
@@ -121,27 +143,16 @@ export const FlagPainter = () => {
   };
 
   const handleSubmit = () => {
-    if (!canvasRef.current) return;
+    if (!canvasRef.current || !targetCanvasRef.current) return;
     
-    // Create target canvas offscreen to compare
-    const targetCanvas = document.createElement('canvas');
-    targetCanvas.width = 600;
-    targetCanvas.height = 400;
-    const targetCtx = targetCanvas.getContext('2d');
-    if (!targetCtx) return;
-
-    // Save target for rendering to the user so they can see what they missed
-    targetCanvasRef.current = targetCanvas;
-
-    generateDeterministicFlag(selectedCountry, targetCtx, 600, 400, COLORS);
-    
+    const targetCtx = targetCanvasRef.current.getContext('2d');
     const userCtx = canvasRef.current.getContext('2d');
-    if (!userCtx) return;
+    if (!targetCtx || !userCtx) return;
     
     const score = compareCanvases(userCtx, targetCtx, 600, 400);
     setAccuracy(score);
     
-    if (score >= 80) {
+    if (score >= 60) {
       setHasWon(true);
       completeGame('flag-painter');
     } else {
@@ -162,7 +173,7 @@ export const FlagPainter = () => {
   const getStatusMessage = () => {
     if (isLost) return currentRoast || "Time is up. The flag is ruined.";
     if (hasWon) return `Incredible. Flag accuracy: ${accuracy}%.`;
-    return `Paint the target flag with at least 80% accuracy. Time: ${timeLeft}s`;
+    return `Paint the target flag with at least 60% accuracy. Time: ${timeLeft}s`;
   };
 
   return (
@@ -180,7 +191,12 @@ export const FlagPainter = () => {
             <div className="flex flex-col gap-4 w-full max-w-xs md:max-w-sm shrink-0">
             <div className="w-full bg-zinc-900 border border-zinc-700 rounded p-4 text-white text-center shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]">
               <div className="text-xs text-zinc-500 font-mono mb-1">TARGET FLAG</div>
-              <div className="font-bold text-lg leading-tight">{selectedCountry.toUpperCase()}</div>
+              <div className="font-bold text-lg leading-tight mb-3">{selectedCountry.toUpperCase()}</div>
+              
+              <div className="text-xs text-zinc-500 font-mono mb-1">LIVE ACCURACY</div>
+              <div className={`font-bold text-2xl ${accuracy !== null && accuracy >= 60 ? 'text-green-400' : 'text-yellow-400'}`}>
+                {accuracy !== null ? `${accuracy.toFixed(1)}%` : '0.0%'}
+              </div>
             </div>
 
             <div className="flex items-center gap-4">
