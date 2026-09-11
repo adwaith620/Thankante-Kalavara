@@ -1,14 +1,24 @@
 # Thankan's Kalavara 🎯
 
 ## Basic Details
-### Team Name: [Fill with the actual team name if available]
+### Team Name
+La Squadra Execuzioni
+
 ### Team Members
-- Team Lead: Adwaith - [College name if available]
-- Member 2: [Name if available] - [College if available]
-- Member 3: [Name if available] - [College if available]
+- Adwaith Krishna MH — TKM College of Engineering, Kollam
+- Abhinand JS — TKM College of Engineering, Kollam
 
 ### Project Description
-Thankan's Kalavara is a deliberately frustrating collection of absurd UI challenges and bad-UX mini-games. The interface intentionally makes simple tasks difficult. Players complete a sequence of challenges. The project includes hostile buttons, confusing controls, fake errors, unstable interfaces, and ridiculous interactions. The player must complete the full kalavara. A shared session timer tracks the entire run. The player receives a clean printable CERTIFIED THANKAN certificate. The project is designed as a humorous TinkerHub Useless Project.
+Thankan's Kalavara is a deliberately frustrating collection of absurd mini-games and bad-UI challenges. The interface intentionally makes simple tasks difficult. Features include:
+- Intentionally confusing and frustrating interfaces
+- Multiple absurd mini-games
+- Sequential game progression
+- Shared session timer
+- Game completion tracking
+- Random game selection
+- Daily leaderboard
+- Clean printable certificate
+- Final certificate title: CERTIFIED THANKAN
 
 ### The Problem (that doesn't exist)
 Modern interfaces are too convenient and predictable. Users normally:
@@ -20,14 +30,7 @@ Modern interfaces are too convenient and predictable. Users normally:
 This project solves the imaginary problem of interfaces being too usable.
 
 ### The Solution (that nobody asked for)
-The project replaces ordinary UI interactions with intentionally frustrating challenges. Features include:
-- Fixed sequential game progression.
-- Shared timer across the complete session.
-- Random game selection feature.
-- Game completion tracking.
-- Daily leaderboard support.
-- Printable certificate.
-- The final title CERTIFIED THANKAN.
+The project replaces ordinary UI interactions with intentionally frustrating challenges. 
 
 ## Technical Details
 
@@ -68,17 +71,6 @@ npm install
 npm run dev
 ```
 
-## Game Flow
-1. Open Thankan's Kalavara.
-2. Start the challenge session.
-3. The shared timer begins.
-4. Complete the active games in order.
-5. Progress moves to the next game after completion.
-6. The timer continues across all games.
-7. Completing the final game records the total session time.
-8. The player can view the final result and certificate.
-9. The leaderboard is updated locally.
-
 ## Project Documentation
 
 ### For Software:
@@ -86,25 +78,61 @@ The architecture revolves around a global store (`store.ts`) that manages progre
 
 # Screenshots
 
-![Landing Screen](Add landing screen screenshot here)
+![Landing Screen]([Add landing screen screenshot URL here])
 *Landing screen of Thankan's Kalavara.*
 
-![Game Screen](Add game screenshot here)
+![Game Screen]([Add game screenshot URL here])
 *Example of an intentionally frustrating game.*
 
-![Certificate](Add certificate screenshot here)
+![Certificate]([Add certificate screenshot URL here])
 *Printable CERTIFIED THANKAN certificate.*
 
 # Diagrams
 
-Add a workflow or architecture diagram showing:
-- Landing page
-- Game registry
-- Sequential game progression
-- Shared session timer
-- Completion tracking
-- Final certificate
-- Leaderboard submission
+### Overall application flow
+```mermaid
+flowchart TD
+    A[Landing Page] --> B[Start Challenge]
+    B --> C[Start Shared Session Timer]
+    C --> D[Game 1]
+    D --> E[Game 2]
+    E --> F[Game 3]
+    F --> G[Continue Through Active Games]
+    G --> H[Complete Final Game]
+    H --> I[Stop Shared Timer]
+    I --> J[Save Completion Time]
+    J --> K[Calculate Daily Rank]
+    K --> L[Display CERTIFIED THANKAN Certificate]
+```
+
+### Game architecture
+```mermaid
+flowchart LR
+    A[Game Registry] --> B[Game List]
+    A --> C[Sequential Progression]
+    A --> D[Random Game Selection]
+    C --> E[Active Game]
+    E --> F[Game Completion Handler]
+    F --> G[Progress Tracking]
+    G --> H[Next Game]
+    H --> E
+```
+
+### Completion and leaderboard flow
+```mermaid
+flowchart TD
+    A[Complete All Active Games] --> B[Stop Session Timer]
+    B --> C[Store Final Completion Time]
+    C --> D{Leaderboard Available?}
+    D -->|Yes| E[Submit Daily Result]
+    E --> F[Calculate Player Rank]
+    D -->|No| G[Show Unranked State]
+    F --> H[Generate Certificate]
+    G --> H
+    H --> I[Printable Certificate]
+```
+
+The application uses a central game registry to manage active games, sequential progression, random selection, completion tracking, and the final certificate flow. A shared session timer measures the complete challenge run rather than individual game durations.
 
 ### Project Demo
 
@@ -116,9 +144,18 @@ Add a workflow or architecture diagram showing:
 [Add any extra demo materials or links here]
 
 ## Team Contributions
-- Adwaith: Project implementation, game mechanics, UI/UX, game progression, shared timer, certificate, branding, and integration.
-- [Member 2]: [Specific contributions]
-- [Member 3]: [Specific contributions]
+### Adwaith Krishna MH
+- Frontend development
+- UI implementation
+- Game interface integration
+- Game progression and overall website structure
+
+### Abhinand JS
+- JavaScript implementation
+- Creative game ideas
+- Debugging
+- Game testing
+- Interaction and gameplay improvements
 
 ---
 Made with ❤️ at TinkerHub Useless Projects
