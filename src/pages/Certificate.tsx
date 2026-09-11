@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useStore } from '../lib/store';
-import { Download, Trophy } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 import { GAMES } from '../lib/constants';
 import { fetchDailyLeaderboard, syncLeaderboard, type LeaderboardEntry } from '../lib/leaderboard';
-import html2canvas from 'html2canvas';
 
 export const Certificate = () => {
   const { stats, updatePlayerName } = useStore();
@@ -37,34 +36,11 @@ export const Certificate = () => {
     loadLeaderboard();
   }, []);
 
-  const handleDownloadImage = async () => {
-    if (!certRef.current) return;
-    try {
-      const canvas = await html2canvas(certRef.current, {
-        backgroundColor: '#09090b',
-        scale: 2
-      });
-      const image = canvas.toDataURL("image/png");
-      const link = document.createElement('a');
-      link.href = image;
-      const safeName = (name || 'Anonymous-Sufferer').replace(/\s+/g, '-').toUpperCase();
-      link.download = `CERTIFIED-THANKAN-${safeName}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   const handleSaveAndSubmit = async () => {
     if (!name || !sessionDuration || !allCompleted || submitted) return;
     setIsSubmitting(true);
     
     try {
-      // Screenshot
-      await handleDownloadImage();
-
       // Leaderboard
       const res = await syncLeaderboard(stats.sessionId, name, sessionDuration, stats.gamesCompleted.length);
       setRank(res.rank);
@@ -165,22 +141,18 @@ export const Certificate = () => {
           </div>
         </div>
 
-        <div className="mt-8 flex justify-center print:hidden mb-16 gap-4">
-          <button 
-            className="flex items-center gap-2 px-6 py-3 bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-white font-mono text-sm rounded transition-colors"
-            onClick={handleDownloadImage}
-          >
-            <Download size={16} />
-            DOWNLOAD AS IMAGE
-          </button>
+        <div className="mt-8 flex flex-col md:flex-row items-center justify-center print:hidden mb-16 gap-4">
+          <div className="px-6 py-3 bg-zinc-900 border border-zinc-700 text-zinc-400 font-mono text-sm rounded text-center">
+            share this on linkedin to assert dominance
+          </div>
           {allCompleted && sessionDuration && !submitted && (
             <button 
               onClick={handleSaveAndSubmit}
               disabled={!name || isSubmitting}
               className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-500 disabled:bg-zinc-800 disabled:text-zinc-500 text-white font-mono text-sm font-bold rounded transition-colors"
             >
-              <Download size={16} />
-              {isSubmitting ? 'PROCESSING...' : 'SAVE CERTIFICATE & SUBMIT TO LEADERBOARD'}
+              <Trophy size={16} />
+              {isSubmitting ? 'PROCESSING...' : 'SUBMIT TO LEADERBOARD'}
             </button>
           )}
           {submitted && (
