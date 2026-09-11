@@ -74,7 +74,7 @@ export const compareCanvases = (userCtx: CanvasRenderingContext2D, targetCtx: Ca
     
     // Color distance
     const dist = Math.sqrt(Math.pow(ur-tr, 2) + Math.pow(ug-tg, 2) + Math.pow(ub-tb, 2));
-    if (dist < 80) { // Very generous tolerance since they only have basic colors
+    if (dist < 180) { // Extremely generous tolerance
       matchPixels++;
     }
   }
@@ -95,6 +95,6 @@ export const compareCanvases = (userCtx: CanvasRenderingContext2D, targetCtx: Ca
   
   if (targetNonWhitePixels === 0) return 100; // Edge case: entirely white flag
   
-  const score = (matchPixels / targetNonWhitePixels) * 100;
+  const score = (matchPixels / targetNonWhitePixels) * 100 * 1.25; // 1.25x multiplier for sloppy drawings
   return Math.min(100, score);
 };
