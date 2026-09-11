@@ -74,7 +74,9 @@ export const compareCanvases = (userCtx: CanvasRenderingContext2D, targetCtx: Ca
     
     // Color distance
     const dist = Math.sqrt(Math.pow(ur-tr, 2) + Math.pow(ug-tg, 2) + Math.pow(ub-tb, 2));
-    if (dist < 180) { // Extremely generous tolerance
+    
+    // Very generous: 300 distance allows almost any shade of the same base color to match
+    if (dist < 300) { 
       matchPixels++;
     }
   }
