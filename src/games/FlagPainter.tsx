@@ -11,7 +11,7 @@ const COLORS = ["#000000","#FFFFFF","#FF0000","#00FF00","#0000FF","#FFFF00","#00
 
 export const FlagPainter = () => {
   const { recordAttempt, completeGame , recordFailure } = useStore();
-  const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]);
+  const [selectedCountry, setSelectedCountry] = useState(() => COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)]);
   const [color, setColor] = useState("#0000FF");
   const [brushSize, setBrushSize] = useState(10);
   const [isEraser, setIsEraser] = useState(false);
@@ -68,6 +68,7 @@ export const FlagPainter = () => {
     setTimeLeft(45);
     setAccuracy(null);
     setCurrentRoast(null);
+    setSelectedCountry(COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)]);
   };
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
@@ -140,7 +141,7 @@ export const FlagPainter = () => {
     const score = compareCanvases(userCtx, targetCtx, 600, 400);
     setAccuracy(score);
     
-    if (score >= 85) {
+    if (score >= 80) {
       setHasWon(true);
       completeGame('flag-painter');
     } else {
@@ -161,7 +162,7 @@ export const FlagPainter = () => {
   const getStatusMessage = () => {
     if (isLost) return currentRoast || "Time is up. The flag is ruined.";
     if (hasWon) return `Incredible. Flag accuracy: ${accuracy}%.`;
-    return `Select a country and paint its flag accurately. Time remaining: ${timeLeft}s`;
+    return `Paint the target flag with at least 80% accuracy. Time: ${timeLeft}s`;
   };
 
   return (
@@ -177,15 +178,10 @@ export const FlagPainter = () => {
         <div className="w-full md:w-64 flex flex-col gap-6 bg-zinc-900 border border-zinc-800 p-4 rounded-lg">
           <div>
             <div className="flex flex-col gap-4 w-full max-w-xs md:max-w-sm shrink-0">
-            <select 
-              value={selectedCountry}
-              onChange={(e) => setSelectedCountry(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-700 rounded p-2 text-white font-mono outline-none focus:border-green-500"
-            >
-              {COUNTRIES.map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
+            <div className="w-full bg-zinc-900 border border-zinc-700 rounded p-4 text-white text-center shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]">
+              <div className="text-xs text-zinc-500 font-mono mb-1">TARGET FLAG</div>
+              <div className="font-bold text-lg leading-tight">{selectedCountry.toUpperCase()}</div>
+            </div>
 
             <div className="flex items-center gap-4">
               <div 
