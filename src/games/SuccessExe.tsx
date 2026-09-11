@@ -30,7 +30,7 @@ export const SuccessExe = () => {
   const [popups, setPopups] = useState<Popup[]>([]);
   const [hasWon, setHasWon] = useState(false);
   const [isLost, setIsLost] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(5);
+  const [timeLeft, setTimeLeft] = useState(0); // Used as a stopwatch now instead of countdown
   const timeElapsedRef = useRef(0);
   const popupIdCounter = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -47,15 +47,7 @@ export const SuccessExe = () => {
     if (hasWon || isLost) return;
     const t = setInterval(() => {
       timeElapsedRef.current += 1;
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          // If they survive for 5 seconds, they win
-          setHasWon(true);
-          completeGame('success-exe');
-          return 0;
-        }
-        return prev - 1;
-      });
+      setTimeLeft(prev => prev + 1);
     }, 1000);
     return () => clearInterval(t);
   }, [hasWon, isLost]);
@@ -67,7 +59,6 @@ export const SuccessExe = () => {
 
     const spawnWindow = () => {
       if (!containerRef.current) {
-        // Keep the loop alive even if container isn't ready
         timeoutId = setTimeout(spawnWindow, spawnRateRef.current);
         return;
       }
@@ -90,7 +81,6 @@ export const SuccessExe = () => {
       setPopups(prev => {
         const next = [...prev, newPopup];
         
-        // If filled
         if (next.length >= maxWindows) {
           setIsLost(true);
           recordFailure();
@@ -99,8 +89,8 @@ export const SuccessExe = () => {
         return next;
       });
 
-      // Increase spawn rate only after 4 seconds
-      if (timeElapsedRef.current >= 4) {
+      // Increase spawn rate after 5 seconds
+      if (timeElapsedRef.current >= 5) {
         spawnRateRef.current = Math.max(50, spawnRateRef.current * 0.85);
       }
       
@@ -117,7 +107,7 @@ export const SuccessExe = () => {
     setPopups(prev => {
       const next = prev.filter(p => p.id !== id);
       
-      // Secondary Win condition: if all popups are cleared after 5 seconds
+      // Win condition: if all popups are cleared AFTER 5 seconds
       if (next.length === 0 && timeElapsedRef.current >= 5) {
         setHasWon(true);
         completeGame('success-exe');
@@ -131,7 +121,7 @@ export const SuccessExe = () => {
     setHasWon(false);
     setIsLost(false);
     setPopups([]);
-    setTimeLeft(5);
+    setTimeLeft(0);
     timeElapsedRef.current = 0;
     popupIdCounter.current = 0;
     spawnRateRef.current = 800;
@@ -139,8 +129,9 @@ export const SuccessExe = () => {
 
   const getStatusMessage = () => {
     if (isLost) return "SYSTEM OVERLOAD. Play area filled.";
-    if (hasWon) return "You survived the system panic.";
-    return `Survive for 5s by closing errors before the screen fills. Time: ${timeLeft}s`;
+    if (hasWon) return "System secured. All errors cleared.";
+    if (timeLeft < 5) return `Survive until the 5s mark. Time: ${timeLeft}s`;
+    return `CLEAR ALL ERRORS NOW TO WIN! Time: ${timeLeft}s`;
   };
 
   return (
