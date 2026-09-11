@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@theme {
+  --font-mono: 'Space Mono', 'Courier New', monospace;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  
+  --color-matrix-green: #0f0;
+  --color-matrix-dark: #001100;
+  --color-kalavara-bg: #050505;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--color-kalavara-bg);
+  color: white;
+  overflow-x: hidden;
+}
+
+@layer utilities {
+  .crt-overlay {
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(
+      rgba(18, 16, 16, 0) 50%,
+      rgba(0, 0, 0, 0.25) 50%
+    );
+    background-size: 100% 4px;
+    z-index: 9999;
+    opacity: 0.15;
+  }
+}
