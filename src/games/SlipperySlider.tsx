@@ -142,7 +142,7 @@ export const SlipperySlider = () => {
       setThumbPos(prev => ({ ...prev, y: 0 }));
       setFrozenTime(Date.now() + 800);
     } else {
-      if (Math.random() < 0.3 && frozenTime < Date.now()) {
+      if (Math.random() < 0.1 && frozenTime < Date.now()) {
         setIsFallen(true);
         setVelocity({ x: (Math.random() - 0.5) * 10, y: -5 });
         recordFailure();
@@ -158,7 +158,8 @@ export const SlipperySlider = () => {
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging || hasWon || isLost || isFallen) return;
     
-    if (!isFrozen() && Math.random() < 0.05) {
+    // Calculate aggressiveness based on movement to add slip chance
+    if (!isFrozen() && Math.random() < 0.005) {
       setIsDragging(false);
       setIsFallen(true);
       setVelocity({ x: (Math.random() - 0.5) * 15, y: -10 });
