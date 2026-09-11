@@ -87,8 +87,25 @@ export const ArtilleryKeyboard = () => {
       ctx.fillText(ALPHABET[i], x + targetWidth / 2, y + 14);
     }
 
-    // NO trajectory preview - removed for difficulty
-
+    // Draw trajectory preview
+    const startX = 30;
+    const startY = canvas.height - 30;
+    const vx = Math.cos((angle * Math.PI) / 180) * power;
+    const vy = -Math.sin((angle * Math.PI) / 180) * power;
+    
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    for (let t = 0; t < 50; t += 0.15) {
+      const nextX = startX + vx * t + wind * t * 0.5;
+      const nextY = startY + vy * t + 0.5 * gravity * t * t;
+      ctx.lineTo(nextX, nextY);
+      if (nextY >= canvas.height - 20) break;
+    }
+    ctx.setLineDash([5, 5]);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.setLineDash([]);
     // Draw wind indicator
     ctx.fillStyle = '#3b82f6';
     ctx.font = '10px monospace';
