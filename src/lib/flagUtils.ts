@@ -100,9 +100,9 @@ export const compareCanvases = (userCtx: CanvasRenderingContext2D, targetCtx: Ca
   // Base raw score (0-100)
   const rawScore = (matchPixels / targetNonWhitePixels) * 100;
   
-  // A balanced 6.0x multiplier. 
-  // A raw 10% pixel match becomes 60% (passing).
-  const score = rawScore * 6.0; 
+  // A balanced 3.0x multiplier. 
+  // A raw 20% pixel match becomes 60% (passing).
+  const score = rawScore * 3.0; 
   
   return Math.min(100, score);
 };
