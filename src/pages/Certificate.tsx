@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useStore } from '../lib/store';
 import { Download, Trophy } from 'lucide-react';
 import { GAMES } from '../lib/constants';
 import { fetchDailyLeaderboard, submitToLeaderboard, type LeaderboardEntry } from '../lib/leaderboard';
+import html2canvas from 'html2canvas';
 
 export const Certificate = () => {
   const { stats } = useStore();
@@ -11,6 +12,7 @@ export const Certificate = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const certRef = useRef<HTMLDivElement>(null);
 
   const isEligible = stats.gamesCompleted.length > 0;
   const allCompleted = stats.gamesCompleted.length >= GAMES.length;
@@ -35,10 +37,25 @@ export const Certificate = () => {
     loadLeaderboard();
   }, []);
 
-  const handleSubmitScore = async () => {
+  const handleSaveAndSubmit = async () => {
     if (!name || !sessionDuration || !allCompleted || submitted) return;
     setIsSubmitting(true);
+    
     try {
+      // Screenshot
+      if (certRef.current) {
+        const canvas = await html2canvas(certRef.current, {
+          backgroundColor: '#09090b', // zinc-950
+          scale: 2
+        });
+        const image = canvas.toDataURL("image/png");
+        const link = document.createElement('a');
+        link.href = image;
+        link.download = `CERTIFIED-THANKAN-${name.replace(/\s+/g, '-').toUpperCase()}.png`;
+        link.click();
+      }
+
+      // Leaderboard
       const res = await submitToLeaderboard(name, sessionDuration);
       setRank(res.rank);
       setSubmitted(true);
@@ -76,25 +93,16 @@ export const Certificate = () => {
               placeholder="Anonymous Sufferer"
               className="flex-1 max-w-md bg-zinc-900 border border-zinc-700 p-3 rounded text-white focus:outline-none focus:border-green-500 transition-colors disabled:opacity-50"
             />
-            {allCompleted && sessionDuration && !submitted && (
-              <button 
-                onClick={handleSubmitScore}
-                disabled={!name || isSubmitting}
-                className="bg-green-600 hover:bg-green-500 disabled:bg-zinc-800 disabled:text-zinc-500 px-6 py-3 rounded font-bold text-white transition-colors"
-              >
-                {isSubmitting ? 'SUBMITTING...' : 'SUBMIT TIME'}
-              </button>
-            )}
           </div>
           {allCompleted && !sessionDuration && (
             <p className="text-red-400 mt-2">Error: No session time recorded. Cannot submit to leaderboard.</p>
           )}
           {!allCompleted && (
-            <p className="text-zinc-500 mt-2">Complete all {GAMES.length} games to submit your time to the leaderboard.</p>
+            <p className="text-zinc-500 mt-2">Complete all {GAMES.length} games to unlock your certificate and submit to the leaderboard.</p>
           )}
         </div>
 
-        <div className="bg-zinc-950/90 border-2 border-zinc-800 p-8 md:p-12 rounded-lg relative overflow-hidden backdrop-blur-md print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
+        <div ref={certRef} className="bg-zinc-950/90 border-2 border-zinc-800 p-8 md:p-12 rounded-lg relative overflow-hidden backdrop-blur-md print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
           {/* Decorative elements */}
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-600 via-emerald-400 to-green-600 print:bg-black" />
           
@@ -144,14 +152,28 @@ export const Certificate = () => {
           </div>
         </div>
 
-        <div className="mt-8 flex justify-center print:hidden mb-16">
+        <div className="mt-8 flex justify-center print:hidden mb-16 gap-4">
           <button 
             className="flex items-center gap-2 px-6 py-3 bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-white font-mono text-sm rounded transition-colors"
             onClick={() => window.print()}
           >
-            <Download size={16} />
-            PRINT / SAVE AS PDF
+            PRINT (PDF)
           </button>
+          {allCompleted && sessionDuration && !submitted && (
+            <button 
+              onClick={handleSaveAndSubmit}
+              disabled={!name || isSubmitting}
+              className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-500 disabled:bg-zinc-800 disabled:text-zinc-500 text-white font-mono text-sm font-bold rounded transition-colors"
+            >
+              <Download size={16} />
+              {isSubmitting ? 'PROCESSING...' : 'SAVE CERTIFICATE & SUBMIT TO LEADERBOARD'}
+            </button>
+          )}
+          {submitted && (
+            <div className="px-6 py-3 bg-green-900/30 border border-green-500/50 text-green-400 font-mono text-sm rounded flex items-center">
+              SAVED & SUBMITTED SUCCESSFULLY!
+            </div>
+          )}
         </div>
 
         {/* Daily Leaderboard */}

@@ -43,6 +43,12 @@ export const Navbar = () => {
           >
             CERTIFICATE
           </Link>
+          <Link 
+            to="/leaderboard" 
+            className={`hover:text-green-400 transition-colors ${location.pathname === '/leaderboard' ? 'text-green-500' : 'text-zinc-400'}`}
+          >
+            LEADERBOARD
+          </Link>
           
           <button 
             onClick={handleRandom}
@@ -74,7 +80,10 @@ const TimerDisplay = ({ startTime, endTime }: { startTime: number, endTime: numb
   const [now, setNow] = useState(endTime || Date.now());
 
   useEffect(() => {
-    if (endTime) return;
+    if (endTime) {
+      setNow(endTime);
+      return;
+    }
     const interval = setInterval(() => {
       setNow(Date.now());
     }, 100);

@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "framer-motion": "^13.2.0",
+    "html2canvas": "^1.4.1",
     "lucide-react": "^1.45.0",
     "matter-js": "^0.20.0",
     "react": "^19.2.8",

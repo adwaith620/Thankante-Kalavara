@@ -4,6 +4,7 @@ import { Navbar } from './components/Navbar';
 import { LandingPage } from './pages/LandingPage';
 import { GamesHub } from './pages/GamesHub';
 import { Certificate } from './pages/Certificate';
+import { LeaderboardPage } from './pages/LeaderboardPage';
 
 import { PasswordTorture } from './games/PasswordTorture';
 import { DeleteAccountPachinko } from './games/DeleteAccountPachinko';
@@ -45,6 +46,7 @@ function App() {
           <Route path="/games/orbiting-date-roulette" element={<OrbitingDateRoulette />} />
           
           <Route path="/certificate" element={<Certificate />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
           
           <Route path="/games/password-torture" element={<PasswordTorture />} />
           <Route path="/games/delete-account-pachinko" element={<DeleteAccountPachinko />} />
