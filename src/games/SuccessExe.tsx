@@ -94,8 +94,8 @@ export const SuccessExe = () => {
         return next;
       });
 
-      // Increase spawn rate only after 6 seconds
-      if (timeElapsedRef.current >= 6) {
+      // Increase spawn rate only after 4 seconds
+      if (timeElapsedRef.current >= 4) {
         spawnRateRef.current = Math.max(50, spawnRateRef.current * 0.85);
       }
       
