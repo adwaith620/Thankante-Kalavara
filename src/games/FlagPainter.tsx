@@ -30,21 +30,32 @@ export const FlagPainter = () => {
 
   // Generate target flag on load or country change
   useEffect(() => {
-    if (!targetCanvasRef.current) {
-      targetCanvasRef.current = document.createElement('canvas');
-      targetCanvasRef.current.width = 600;
-      targetCanvasRef.current.height = 400;
+    // ALWAYS create a fresh canvas element to prevent DOM detachment issues
+    const canvas = document.createElement('canvas');
+    canvas.width = 600;
+    canvas.height = 400;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, 600, 400);
+      generateDeterministicFlag(selectedCountry, ctx, 600, 400, COLORS);
     }
-    const targetCtx = targetCanvasRef.current.getContext('2d');
-    if (targetCtx) {
-      generateDeterministicFlag(selectedCountry, targetCtx, 600, 400, COLORS);
-    }
+    targetCanvasRef.current = canvas;
   }, [selectedCountry]);
+
+  const [isCanvasInitialized, setIsCanvasInitialized] = useState(false);
 
   useEffect(() => {
     recordAttempt();
-    initCanvas();
   }, []);
+
+  // Ensure canvas is initialized with white background once it mounts
+  useEffect(() => {
+    if (canvasRef.current && !isCanvasInitialized) {
+      initCanvas();
+      setIsCanvasInitialized(true);
+    }
+  });
 
   useEffect(() => {
     if (hasWon || isLost) return;
@@ -226,7 +237,7 @@ export const FlagPainter = () => {
             <input 
               type="range" 
               min="1" 
-              max="50" 
+              max="150" 
               value={brushSize}
               onChange={(e) => setBrushSize(parseInt(e.target.value))}
               disabled={hasWon}
