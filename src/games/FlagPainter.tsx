@@ -163,7 +163,7 @@ export const FlagPainter = () => {
     const score = compareCanvases(userCtx, targetCtx, 600, 400);
     setAccuracy(score);
     
-    if (score >= 50) {
+    if (score >= 80) {
       setHasWon(true);
       completeGame('flag-painter');
     } else {
@@ -184,7 +184,7 @@ export const FlagPainter = () => {
   const getStatusMessage = () => {
     if (isLost) return currentRoast || "Time is up. The flag is ruined.";
     if (hasWon) return `Incredible. Flag accuracy: ${accuracy}%.`;
-    return `Paint the target flag with at least 50% accuracy. Time: ${timeLeft}s`;
+    return `Paint the target flag with at least 80% accuracy. Time: ${timeLeft}s`;
   };
 
   return (
@@ -205,7 +205,7 @@ export const FlagPainter = () => {
               <div className="font-bold text-lg leading-tight mb-3">{selectedCountry.toUpperCase()}</div>
               
               <div className="text-xs text-zinc-500 font-mono mb-1">LIVE ACCURACY</div>
-              <div className={`font-bold text-2xl ${accuracy !== null && accuracy >= 50 ? 'text-green-400' : 'text-yellow-400'}`}>
+              <div className={`font-bold text-2xl ${accuracy !== null && accuracy >= 80 ? 'text-green-400' : 'text-yellow-400'}`}>
                 {accuracy !== null ? `${accuracy.toFixed(1)}%` : '0.0%'}
               </div>
             </div>
