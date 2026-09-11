@@ -201,7 +201,8 @@ export const UnsubscribeWindTunnel = () => {
           ref={buttonRef}
           tabIndex={-1}
           onFocus={(e) => e.target.blur()}
-          onClick={handleUnsubscribe}
+          onMouseDown={handleUnsubscribe}
+          onTouchStart={handleUnsubscribe}
           disabled={hasWon}
           className={`absolute w-[150px] h-[50px] font-mono font-bold rounded shadow-lg transition-colors ${
             hasWon ? 'bg-green-500 text-white cursor-default' : 'bg-red-600 hover:bg-red-500 text-white cursor-pointer'
