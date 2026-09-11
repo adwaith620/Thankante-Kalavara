@@ -12,7 +12,7 @@ export const MilkGlassVolume = () => {
   const [timeLeft, setTimeLeft] = useState(45);
   
   const [holdTime, setHoldTime] = useState(0); // in ms
-  const TARGET_HOLD_MS = 1000;
+  const TARGET_HOLD_MS = 500;
   
   const pourRateRef = useRef(1.2);
   const lastUpdateRef = useRef<number>(performance.now());
@@ -69,9 +69,8 @@ export const MilkGlassVolume = () => {
 
         // Overpour
         if (newLevel > targetVolume + 4) {
-          setIsLost(true);
-          recordFailure();
-          return newLevel;
+          // Just spill and reset, don't trigger loss
+          return 0;
         }
 
         newLevel = Math.max(0, Math.min(100, newLevel));
@@ -131,7 +130,7 @@ export const MilkGlassVolume = () => {
     const diff = Math.abs(milkLevel - targetVolume);
     if (diff < 15) return "Approaching critical level. Leakage increasing!";
     
-    return `Hold POUR to add milk. Keep it at ${Math.round(targetVolume)}% for 1 second. Time: ${timeLeft}s`;
+    return `Hold POUR to add milk. Keep it at ${Math.round(targetVolume)}% for 0.5 seconds. Time: ${timeLeft}s`;
   };
 
   return (
