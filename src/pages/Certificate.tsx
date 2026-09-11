@@ -37,23 +37,31 @@ export const Certificate = () => {
     loadLeaderboard();
   }, []);
 
+  const handleDownloadImage = async () => {
+    if (!certRef.current) return;
+    try {
+      const canvas = await html2canvas(certRef.current, {
+        backgroundColor: '#09090b',
+        scale: 2
+      });
+      const image = canvas.toDataURL("image/png");
+      const link = document.createElement('a');
+      link.href = image;
+      const safeName = (name || 'Anonymous-Sufferer').replace(/\s+/g, '-').toUpperCase();
+      link.download = `CERTIFIED-THANKAN-${safeName}.png`;
+      link.click();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleSaveAndSubmit = async () => {
     if (!name || !sessionDuration || !allCompleted || submitted) return;
     setIsSubmitting(true);
     
     try {
       // Screenshot
-      if (certRef.current) {
-        const canvas = await html2canvas(certRef.current, {
-          backgroundColor: '#09090b', // zinc-950
-          scale: 2
-        });
-        const image = canvas.toDataURL("image/png");
-        const link = document.createElement('a');
-        link.href = image;
-        link.download = `CERTIFIED-THANKAN-${name.replace(/\s+/g, '-').toUpperCase()}.png`;
-        link.click();
-      }
+      await handleDownloadImage();
 
       // Leaderboard
       const res = await syncLeaderboard(stats.sessionId, name, sessionDuration, stats.gamesCompleted.length);
@@ -105,45 +113,45 @@ export const Certificate = () => {
           )}
         </div>
 
-        <div ref={certRef} className="bg-zinc-950/90 border-2 border-zinc-800 p-8 md:p-12 rounded-lg relative overflow-hidden backdrop-blur-md print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
+        <div ref={certRef} className="bg-zinc-950/90 border-2 border-zinc-800 p-8 md:p-12 rounded-lg relative overflow-hidden backdrop-blur-md">
           {/* Decorative elements */}
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-600 via-emerald-400 to-green-600 print:bg-black" />
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-600 via-emerald-400 to-green-600" />
           
-          <div className="text-center mb-12 relative z-10 print:mt-12">
-            <h1 className="text-3xl md:text-5xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-500 mb-4 uppercase print:text-black print:bg-none">
+          <div className="text-center mb-12 relative z-10">
+            <h1 className="text-3xl md:text-5xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-500 mb-4 uppercase">
               CERTIFIED THANKAN
             </h1>
-            <p className="font-mono text-zinc-400 tracking-widest print:text-zinc-600">
+            <p className="font-mono text-zinc-400 tracking-widest">
               THANKANTE KALAVARA EXTREME USABILITY TESTING
             </p>
           </div>
 
           <div className="font-mono mb-12 relative z-10">
-            <p className="text-lg text-zinc-300 leading-relaxed mb-6 text-center print:text-black">
-              This certifies that <span className="text-green-400 font-bold border-b border-green-400/30 pb-1 px-2 print:text-black print:border-black">{name || 'Anonymous Sufferer'}</span> has willingly subjected themselves to intentionally terrible user interfaces and emerged partially intact.
+            <p className="text-lg text-zinc-300 leading-relaxed mb-6 text-center">
+              This certifies that <span className="text-green-400 font-bold border-b border-green-400/30 pb-1 px-2">{name || 'Anonymous Sufferer'}</span> has willingly subjected themselves to intentionally terrible user interfaces and emerged partially intact.
             </p>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-6 bg-black/50 rounded border border-zinc-900 print:bg-transparent print:border-zinc-300">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-6 bg-black/50 rounded border border-zinc-900">
               <div>
-                <div className="text-zinc-500 text-xs mb-1 print:text-zinc-600">GAMES COMPLETED</div>
-                <div className="text-2xl text-white print:text-black">{stats.gamesCompleted.length} / {GAMES.length}</div>
+                <div className="text-zinc-500 text-xs mb-1">GAMES COMPLETED</div>
+                <div className="text-2xl text-white">{stats.gamesCompleted.length} / {GAMES.length}</div>
               </div>
               <div>
-                <div className="text-zinc-500 text-xs mb-1 print:text-zinc-600">TOTAL FAILURES</div>
-                <div className="text-2xl text-red-400 print:text-black">{stats.totalFailures}</div>
+                <div className="text-zinc-500 text-xs mb-1">TOTAL FAILURES</div>
+                <div className="text-2xl text-red-400">{stats.totalFailures}</div>
               </div>
               <div>
-                <div className="text-zinc-500 text-xs mb-1 print:text-zinc-600">SESSION TIME</div>
-                <div className="text-2xl text-white print:text-black">{sessionDuration ? formatTime(sessionDuration) : 'N/A'}</div>
+                <div className="text-zinc-500 text-xs mb-1">SESSION TIME</div>
+                <div className="text-2xl text-white">{sessionDuration ? formatTime(sessionDuration) : 'N/A'}</div>
               </div>
               <div>
-                <div className="text-zinc-500 text-xs mb-1 print:text-zinc-600">DAILY RANK</div>
-                <div className="text-2xl text-green-400 print:text-black">{rank !== null ? `#${rank}` : 'UNRANKED'}</div>
+                <div className="text-zinc-500 text-xs mb-1">DAILY RANK</div>
+                <div className="text-2xl text-green-400">{rank !== null ? `#${rank}` : 'UNRANKED'}</div>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-between items-end relative z-10 mt-16 font-mono text-xs text-zinc-600 print:text-zinc-800">
+          <div className="flex justify-between items-end relative z-10 mt-16 font-mono text-xs text-zinc-600">
             <div>
               DATE: {new Date().toLocaleDateString()}<br/>
               AUTHORIZED BY: SYSTEM ADMINISTRATOR
@@ -158,9 +166,10 @@ export const Certificate = () => {
         <div className="mt-8 flex justify-center print:hidden mb-16 gap-4">
           <button 
             className="flex items-center gap-2 px-6 py-3 bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-white font-mono text-sm rounded transition-colors"
-            onClick={() => window.print()}
+            onClick={handleDownloadImage}
           >
-            PRINT (PDF)
+            <Download size={16} />
+            DOWNLOAD AS IMAGE
           </button>
           {allCompleted && sessionDuration && !submitted && (
             <button 
