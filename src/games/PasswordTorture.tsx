@@ -1,12 +1,25 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { GameLayout } from '../components/GameLayout';
 import { useStore } from '../lib/store';
 import { Check, X } from 'lucide-react';
 
-const TARGET_PASSWORD = "password123";
+const PASSWORDS = [
+  { text: "admin123", hint: "The default router login password followed by 123." },
+  { text: "password123", hint: "The most common password in the world, followed by the three most common numbers." },
+  { text: "qwertyuiop", hint: "Just slide your finger across the top row of your keyboard." },
+  { text: "iloveyou", hint: "A phrase you rarely hear from your parents." },
+  { text: "hunter2", hint: "A legendary meme password that shows up as *******." },
+  { text: "12345678", hint: "Just count to 8." },
+  { text: "letmein1", hint: "A polite request to enter, appended with a 1." },
+  { text: "sunshine", hint: "That bright yellow thing in the sky you haven't seen in days." },
+  { text: "monkey", hint: "Our evolutionary ancestor. Also a terrible password." },
+  { text: "dragon", hint: "A mythical fire-breathing reptile." },
+  { text: "football", hint: "A sport where you kick a ball with your foot." }
+];
 
 export const PasswordTorture = () => {
   const { recordAttempt, recordFailure, completeGame } = useStore();
+  const [target, setTarget] = useState(() => PASSWORDS[Math.floor(Math.random() * PASSWORDS.length)]);
   const [input, setInput] = useState("");
   const [hasWon, setHasWon] = useState(false);
   const [statusMessage, setStatusMessage] = useState("Enter your password to continue.");
@@ -16,6 +29,7 @@ export const PasswordTorture = () => {
   }, []);
 
   const handleReset = () => {
+    setTarget(PASSWORDS[Math.floor(Math.random() * PASSWORDS.length)]);
     setInput("");
     setHasWon(false);
     setStatusMessage("Enter your password to continue.");
@@ -26,29 +40,29 @@ export const PasswordTorture = () => {
     const val = e.target.value;
     setInput(val);
     
-    if (val === TARGET_PASSWORD) {
+    if (val === target.text) {
       setHasWon(true);
       completeGame('password-torture');
       setStatusMessage("Congratulations. You have successfully leaked your own password.");
-    } else if (val.length >= TARGET_PASSWORD.length && val !== TARGET_PASSWORD) {
+    } else if (val.length >= target.text.length && val !== target.text) {
       recordFailure();
     }
   };
 
   // Generate validation array
-  const validation = Array.from({ length: Math.max(input.length, TARGET_PASSWORD.length) }).map((_, i) => {
+  const validation = Array.from({ length: Math.max(input.length, target.text.length) }).map((_, i) => {
     if (i >= input.length) return null; // Not typed yet
-    return input[i] === TARGET_PASSWORD[i];
+    return input[i] === target.text[i];
   });
 
   const getAbsurdMessage = () => {
     if (input.length === 0) return "We take security extremely seriously.";
     if (input.length < 5) return "Your password is too weak. And mostly wrong.";
-    if (input.length > TARGET_PASSWORD.length) return "Too many characters. We ran out of storage.";
+    if (input.length > target.text.length) return "Too many characters. We ran out of storage.";
     
     const correctCount = validation.filter(v => v === true).length;
     if (correctCount === 0) return "Incredible. Literally every character is wrong.";
-    if (correctCount === TARGET_PASSWORD.length - 1) return "You are sweating right now, aren't you?";
+    if (correctCount === target.text.length - 1) return "You are sweating right now, aren't you?";
     return `Security score: ${correctCount * 7.4}%`;
   };
 
@@ -67,13 +81,13 @@ export const PasswordTorture = () => {
             onChange={handleInputChange}
             className="w-full bg-zinc-900 border border-zinc-700 p-4 text-2xl font-mono tracking-widest text-center focus:outline-none focus:border-green-500 rounded"
             placeholder="TYPE HERE"
-            maxLength={TARGET_PASSWORD.length + 5}
+            maxLength={target.text.length + 5}
             autoComplete="off"
             autoCorrect="off"
             spellCheck="false"
           />
           <div className="text-center font-mono text-xs text-zinc-500 mt-2">
-            HINT: The most common password in the world, followed by the three most common numbers.
+            HINT: {target.hint}
           </div>
         </div>
 
