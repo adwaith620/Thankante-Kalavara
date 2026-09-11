@@ -17,7 +17,7 @@ export const UnsubscribeWindTunnel = () => {
     currentY: 200,
     vx: 0,
     vy: 0,
-    windStrength: 0.1,
+    windStrength: 0.02,
     dead: false
   });
 
@@ -29,14 +29,14 @@ export const UnsubscribeWindTunnel = () => {
     recordAttempt();
   }, []);
 
-  // 1.5 second timer for massive wind
+  // 2 second timer for massive wind
   useEffect(() => {
     if (hasWon || isLost) return;
     
     timerRef.current = setTimeout(() => {
       // Massive wind blows it away
       stateRef.current.windStrength = 20;
-    }, 1500);
+    }, 2000);
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -126,7 +126,7 @@ export const UnsubscribeWindTunnel = () => {
       currentY: 200,
       vx: 0,
       vy: 0,
-      windStrength: 0.1,
+      windStrength: 0.02,
       dead: false
     };
     setBtnPos({ x: 300, y: 200 });
@@ -204,7 +204,7 @@ export const UnsubscribeWindTunnel = () => {
           onMouseDown={handleUnsubscribe}
           onTouchStart={handleUnsubscribe}
           disabled={hasWon}
-          className={`absolute w-[150px] h-[50px] font-mono font-bold rounded shadow-lg transition-colors ${
+          className={`absolute w-[200px] h-[64px] text-xl font-mono font-bold rounded shadow-lg transition-colors ${
             hasWon ? 'bg-green-500 text-white cursor-default' : 'bg-red-600 hover:bg-red-500 text-white cursor-pointer'
           }`}
           style={{
