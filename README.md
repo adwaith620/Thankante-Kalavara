@@ -80,13 +80,16 @@ The architecture revolves around a global store (`store.ts`) that manages progre
 
 # Screenshots
 
-![Landing Screen]([Add landing screen screenshot URL here])
+![Landing Screen](screenshots/landing.png)
 *Landing screen of Thankan's Kalavara.*
 
-![Game Screen]([Add game screenshot URL here])
+![Game Screen](screenshots/game.png)
 *Example of an intentionally frustrating game.*
 
-![Certificate]([Add certificate screenshot URL here])
+![Leaderboard](screenshots/leaderboard.png)
+*Daily Leaderboard tracking survival times.*
+
+![Certificate](screenshots/certificate.png)
 *Printable CERTIFIED THANKAN certificate.*
 
 # Diagrams
