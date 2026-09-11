@@ -97,6 +97,12 @@ export const compareCanvases = (userCtx: CanvasRenderingContext2D, targetCtx: Ca
   
   if (targetNonWhitePixels === 0) return 100; // Edge case: entirely white flag
   
-  const score = (matchPixels / targetNonWhitePixels) * 100 * 1.25; // 1.25x multiplier for sloppy drawings
+  // Base raw score (0-100)
+  const rawScore = (matchPixels / targetNonWhitePixels) * 100;
+  
+  // User requested a raw 20% to map to roughly 60-70%. 
+  // We use a 3.25x multiplier so a raw score of 20 becomes 65%.
+  const score = rawScore * 3.25; 
+  
   return Math.min(100, score);
 };
