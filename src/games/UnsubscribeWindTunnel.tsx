@@ -29,14 +29,14 @@ export const UnsubscribeWindTunnel = () => {
     recordAttempt();
   }, []);
 
-  // 1.0 second timer for massive wind
+  // 0.5 second timer for massive wind
   useEffect(() => {
     if (hasWon || isLost) return;
     
     timerRef.current = setTimeout(() => {
       // Massive wind blows it away
       stateRef.current.windStrength = 20;
-    }, 1000);
+    }, 500);
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
