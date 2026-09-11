@@ -56,7 +56,6 @@ export const compareCanvases = (userCtx: CanvasRenderingContext2D, targetCtx: Ca
   const targetImageData = targetCtx.getImageData(0, 0, width, height).data;
   
   let matchPixels = 0;
-  const totalPixels = width * height;
   
   for (let i = 0; i < userImageData.length; i += 4) {
     const ur = userImageData[i];
@@ -67,12 +66,35 @@ export const compareCanvases = (userCtx: CanvasRenderingContext2D, targetCtx: Ca
     const tg = targetImageData[i+1];
     const tb = targetImageData[i+2];
     
+    // If the user's pixel is completely white, we assume it's unpainted background.
+    // If they explicitly painted white, it will just not count towards the "matched" score.
+    if (ur === 255 && ug === 255 && ub === 255) {
+      continue;
+    }
+    
     // Color distance
     const dist = Math.sqrt(Math.pow(ur-tr, 2) + Math.pow(ug-tg, 2) + Math.pow(ub-tb, 2));
-    if (dist < 50) { // fairly generous tolerance
+    if (dist < 80) { // Very generous tolerance since they only have basic colors
       matchPixels++;
     }
   }
   
-  return (matchPixels / totalPixels) * 100;
+  // To reach 100%, they need to successfully paint all the pixels.
+  // But wait! If the target flag has white parts, they can't match them (since white is ignored).
+  // So we calculate the max possible score as the number of non-white pixels in the target flag.
+  let targetNonWhitePixels = 0;
+  for (let i = 0; i < targetImageData.length; i += 4) {
+    const tr = targetImageData[i];
+    const tg = targetImageData[i+1];
+    const tb = targetImageData[i+2];
+    // We count pixels that are not perfectly white
+    if (!(tr === 255 && tg === 255 && tb === 255)) {
+      targetNonWhitePixels++;
+    }
+  }
+  
+  if (targetNonWhitePixels === 0) return 100; // Edge case: entirely white flag
+  
+  const score = (matchPixels / targetNonWhitePixels) * 100;
+  return Math.min(100, score);
 };
