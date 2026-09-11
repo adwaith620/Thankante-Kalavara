@@ -42,12 +42,6 @@ export const RandomizedVolume = () => {
     const newClicks = clicks + 1;
     setClicks(newClicks);
     
-    if (newClicks >= 25) {
-      setIsLost(true);
-      recordFailure();
-      return;
-    }
-
     // Swap buttons every 5 clicks
     if (clickCountRef.current % 5 === 0) {
       setSwapped(prev => !prev);
@@ -55,27 +49,43 @@ export const RandomizedVolume = () => {
       setTimeout(() => setFlashSwap(false), 300);
     }
 
-    // Determine actual direction (may be swapped)
-    const actualType = swapped ? (type === 'up' ? 'down' : 'up') : type;
-    
-    let change: number;
-    if (actualType === 'up') {
-      // Tends to increase, but 20% chance of decrease
-      change = Math.random() < 0.2 
-        ? -(Math.floor(Math.random() * 11) + 5) 
-        : (Math.floor(Math.random() * 30) + 1);
+    // Success chance increases by 2% per click
+    const successChance = newClicks * 0.02;
+    const forceWin = Math.random() < successChance;
+
+    let newVolume: number;
+
+    if (forceWin) {
+      newVolume = target;
     } else {
-      // Tends to decrease, but 20% chance of increase
-      change = Math.random() < 0.2 
-        ? (Math.floor(Math.random() * 11) + 5) 
-        : -(Math.floor(Math.random() * 30) + 1);
+      if (newClicks >= 25) {
+        setIsLost(true);
+        recordFailure();
+        return;
+      }
+
+      // Determine actual direction (may be swapped)
+      const actualType = swapped ? (type === 'up' ? 'down' : 'up') : type;
+      
+      let change: number;
+      if (actualType === 'up') {
+        // Tends to increase, but 20% chance of decrease
+        change = Math.random() < 0.2 
+          ? -(Math.floor(Math.random() * 11) + 5) 
+          : (Math.floor(Math.random() * 30) + 1);
+      } else {
+        // Tends to decrease, but 20% chance of increase
+        change = Math.random() < 0.2 
+          ? (Math.floor(Math.random() * 11) + 5) 
+          : -(Math.floor(Math.random() * 30) + 1);
+      }
+      
+      // Wrapping volume
+      newVolume = volume + change;
+      if (newVolume > 100) newVolume = newVolume - 100;
+      if (newVolume < 0) newVolume = 100 + newVolume;
+      newVolume = Math.max(0, Math.min(100, newVolume));
     }
-    
-    // Wrapping volume
-    let newVolume = volume + change;
-    if (newVolume > 100) newVolume = newVolume - 100;
-    if (newVolume < 0) newVolume = 100 + newVolume;
-    newVolume = Math.max(0, Math.min(100, newVolume));
     
     setVolume(newVolume);
     
