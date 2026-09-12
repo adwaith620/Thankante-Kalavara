@@ -142,9 +142,9 @@ The application uses a central game registry to manage active games, sequential 
 ### Project Demo
 
 # Video
-[![Thankan's Kalavara Demo](https://img.youtube.com/vi/g8H_PIt81_c/0.jpg)](https://youtu.be/g8H_PIt81_c?si=mr2jwKskxovLweiD)
+[![Thankan's Kalavara Demo](https://img.youtube.com/vi/g8H_PIt81_c/0.jpg)](https://youtu.be/P4W1Ys0F1rE)
 
-*Demonstrates the Thankan's Kalavara experience from the first challenge to the final certificate.*
+*Demonstrates the Thankan's Kalavara experience from the some of the many challenges that we offer.... pardon the bad voice over :/ *
 
 
 ## Team Contributions
